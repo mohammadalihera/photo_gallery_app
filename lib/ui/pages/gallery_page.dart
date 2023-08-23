@@ -113,7 +113,8 @@ class _GalleryPageState extends State<GalleryPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       InkWell(
-                                        onTap: () => downLoadPhoto(state.allPhotos[index].urls!.raw!),
+                                        onTap: () => _showDownloadAlertMessage(state.allPhotos[index].urls!
+                                            .raw!) /* downLoadPhoto(state.allPhotos[index].urls!.raw!) */,
                                         child: Container(
                                           constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
                                           decoration: BoxDecoration(
@@ -174,7 +175,7 @@ class _GalleryPageState extends State<GalleryPage> {
     );
   }
 
-  Future downLoadPhoto(String url) async {
+  Future _downLoadPhoto(String url) async {
     final networkConnection = NetworkConnection.getInstance();
     bool hasConnection = await networkConnection.checkConnection();
     if (hasConnection) {
@@ -198,5 +199,73 @@ class _GalleryPageState extends State<GalleryPage> {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Please connect with network and try again')));
     }
+  }
+
+  _showDownloadAlertMessage(String url) {
+    return showDialog(
+      context: context,
+      builder: (_) {
+        return Container(
+          height: 180,
+          constraints: const BoxConstraints(maxHeight: 200),
+          child: AlertDialog(
+            title: const Text('Download Photo'),
+            content: SizedBox(
+              height: 150,
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                SizedBox(
+                  height: 130,
+                  width: double.infinity,
+                  child: CachedNetworkImage(
+                    key: Key(url),
+                    cacheKey: url,
+                    imageUrl: url,
+                    imageBuilder: (context, imageProvider) {
+                      return Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        decoration: BoxDecoration(image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),
+                      );
+                    },
+                    errorWidget: (context, url, error) => Container(
+                      height: 100,
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(ImagePath.offline_image),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    placeholder: (context, placeHolder) => Shimmer.fromColors(
+                      baseColor: Colors.white24,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        color: Colors.black,
+                        height: 100,
+                        width: MediaQuery.of(context).size.width * 0.4,
+                      ),
+                    ),
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text('Do you want to download this photo'),
+              ]),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _downLoadPhoto(url);
+                },
+                child: const Text('Yes'),
+              ),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('No'))
+            ],
+          ),
+        );
+      },
+    );
   }
 }
