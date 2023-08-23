@@ -10,10 +10,18 @@ class PhotoUrlModel {
 
   PhotoUrlModel({this.raw, this.full, this.regular});
 
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{'raw': raw, 'full': full, 'regular': regular};
+  }
+
+  factory PhotoUrlModel.fromMap(Map<String, dynamic> map) {
+    return PhotoUrlModel(raw: map['raw'] as String, full: map['full'] as String, regular: map['regular'] as String);
+  }
+
   factory PhotoUrlModel.fromJson(Map<String, dynamic> json) => _$PhotoUrlModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$PhotoUrlModelToJson(this);
 
   @override
-  List<Object?> get props => [raw, full, regular];
+  String toString() => 'PhotoUrlModel(raw:$raw, full: $full, regular: $regular)';
 }

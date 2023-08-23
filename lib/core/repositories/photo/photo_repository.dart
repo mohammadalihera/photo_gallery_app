@@ -6,7 +6,7 @@ import 'package:photo_gallery/core/utils/exception_handler/_index.dart';
 class PhotoRepository {
   final PhotoDao _authDAO = PhotoDao();
 
-  Future<Either<AppException, List<PhotoModel>>> loadPhotos() {
-    return _authDAO.loadPhotos();
+  Future<Either<AppException, List<PhotoModel>>> loadPhotos(int page) {
+    return _authDAO.loadPhotos(page);
   }
 }

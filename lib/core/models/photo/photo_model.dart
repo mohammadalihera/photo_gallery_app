@@ -10,10 +10,18 @@ class PhotoModel {
 
   PhotoModel({this.urls});
 
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{'urls': urls};
+  }
+
+  factory PhotoModel.fromMap(Map<String, dynamic> map) {
+    return PhotoModel(urls: map['urls'] as PhotoUrlModel);
+  }
+
   factory PhotoModel.fromJson(Map<String, dynamic> json) => _$PhotoModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$PhotoModelToJson(this);
 
   @override
-  List<Object?> get props => [urls];
+  String toString() => 'PhotoModel(urls:$urls)';
 }

@@ -12,9 +12,10 @@ class PhotoDao {
   final _dio = DioClient.instance.dio;
 
   @override
-  Future<Either<AppException, List<PhotoModel>>> loadPhotos() async {
+  Future<Either<AppException, List<PhotoModel>>> loadPhotos(int page) async {
     try {
-      final response = await _dio.get('${ApiEndPoint.photosUrl}/?client_id=${ApiEndPoint.photoAcessToken}');
+      final response =
+          await _dio.get('${ApiEndPoint.photosUrl}/?page=${page}&client_id=${ApiEndPoint.photoAcessToken}');
       List<PhotoModel> photos = [];
       if (response.statusCode == 200) {
         if (response.data is List) {
