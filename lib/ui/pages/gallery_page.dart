@@ -165,8 +165,8 @@ class _GalleryPageState extends State<GalleryPage> {
                     ],
                   ),
                 ),
-              if (state.allPhotos.isEmpty && isLoading == true) LoadingWidget(loaderTitle: 'Loading Photo'),
-              if (downloading) LoadingWidget(loaderTitle: 'Photo is Downloding')
+              if (state.allPhotos.isEmpty && isLoading == true) LoadingWidget(loaderTitle: 'Loading photo'),
+              if (downloading) LoadingWidget(loaderTitle: 'Photo is downloding')
             ],
           );
         },
@@ -186,9 +186,9 @@ class _GalleryPageState extends State<GalleryPage> {
       await Dio().download(url, path);
       GallerySaver.saveImage(path, albumName: 'PhotoGallery').then((bool? success) {
         if (success != null && success == true) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Downloaded to Gallery')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Downloaded to gallery')));
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to Download the photo')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to download the photo')));
         }
       });
       setState(() {
