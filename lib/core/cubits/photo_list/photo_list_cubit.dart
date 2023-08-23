@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+
 import 'package:photo_gallery/core/models/photo/photo_model.dart';
 import 'package:photo_gallery/core/repositories/photo/photo_repository.dart';
 import 'package:photo_gallery/core/utils/cache/shared_preferences_helper.dart';
@@ -23,7 +24,7 @@ class PhotoListCubit extends Cubit<PhotoListState> {
         page = page + 1;
 
         //Unsplash image api give access 50 requiest in an hour. This is why here this condition is needed
-        if (page < 50) {
+        if (page < 51) {
           final request = await photoRepository.loadPhotos(page);
           request.fold((exception) async {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(exception.message ?? 'Unknown Error')));
@@ -48,8 +49,6 @@ class PhotoListCubit extends Cubit<PhotoListState> {
         List<PhotoModel> cachedPhotoList = await SharedPreferencesHelper.getPhotoList();
         emit(currentState.copyWith(allPhotos: cachedPhotoList));
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (_) {}
   }
 }

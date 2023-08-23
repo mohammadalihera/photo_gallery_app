@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+
 import 'package:photo_gallery/core/utils/networking/endpoint.dart';
 
 class DioClient {
@@ -15,7 +16,6 @@ class DioClient {
     dio
       ..options.connectTimeout
       ..interceptors.clear()
-      // ..interceptors.add(RefreshTokenInterceptor(dio))
       ..interceptors.add(LogInterceptor(responseBody: false));
   }
 }

@@ -21,15 +21,26 @@ class GalleryPage extends StatefulWidget {
 class _GalleryPageState extends State<GalleryPage> {
   ScrollController scrollController = ScrollController();
   final refreshKey = GlobalKey<RefreshIndicatorState>();
-  final scrollThreshold = 100.0;
   bool isLoading = false;
   bool downloading = false;
 
   @override
   void initState() {
-    scrollController = ScrollController()..addListener(_scrollListener);
-    context.read<PhotoListCubit>().getAllPhotos(context);
+    init();
     super.initState();
+  }
+
+  init() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    scrollController = ScrollController()..addListener(_scrollListener);
+    await context.read<PhotoListCubit>().getAllPhotos(context);
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -70,12 +81,7 @@ class _GalleryPageState extends State<GalleryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gallery'),
-        actions: [
-          IconButton(
-            onPressed: () => _syncPhoto(),
-            icon: const Icon(Icons.sync),
-          )
-        ],
+        actions: [IconButton(onPressed: () => _syncPhoto(), icon: const Icon(Icons.sync))],
       ),
       body: BlocBuilder<PhotoListCubit, PhotoListState>(
         builder: (context, state) {
@@ -113,13 +119,12 @@ class _GalleryPageState extends State<GalleryPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       InkWell(
-                                        onTap: () => _showDownloadAlertMessage(state.allPhotos[index].urls!
-                                            .raw!) /* downLoadPhoto(state.allPhotos[index].urls!.raw!) */,
+                                        onTap: () => _showDownloadAlertMessage(state.allPhotos[index].urls!.raw!),
                                         child: Container(
                                           constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
                                           decoration: BoxDecoration(
                                             borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                            color: Colors.white.withOpacity(0.7),
+                                            color: Colors.white.withOpacity(0.8),
                                           ),
                                           child: const Center(child: Icon(Icons.download_rounded)),
                                         ),
@@ -132,14 +137,15 @@ class _GalleryPageState extends State<GalleryPage> {
                                 height: 100,
                                 width: MediaQuery.of(context).size.width * 0.4,
                                 decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                  image: AssetImage(ImagePath.offline_image),
-                                  fit: BoxFit.cover,
-                                )),
+                                  image: DecorationImage(
+                                    image: AssetImage(ImagePath.offline_image),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                               placeholder: (context, placeHolder) => Shimmer.fromColors(
-                                baseColor: Colors.white24,
-                                highlightColor: Colors.grey[100]!,
+                                baseColor: Colors.grey[100]!,
+                                highlightColor: Colors.white24,
                                 child: Container(
                                   color: Colors.black,
                                   height: 100,
@@ -238,10 +244,10 @@ class _GalleryPageState extends State<GalleryPage> {
                       ),
                     ),
                     placeholder: (context, placeHolder) => Shimmer.fromColors(
-                      baseColor: Colors.white24,
-                      highlightColor: Colors.grey[100]!,
+                      baseColor: Colors.grey[100]!,
+                      highlightColor: Colors.white24,
                       child: Container(
-                        color: Colors.black,
+                        color: Colors.grey,
                         height: 100,
                         width: MediaQuery.of(context).size.width * 0.4,
                       ),
