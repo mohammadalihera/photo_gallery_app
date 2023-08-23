@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-
 import 'package:photo_gallery/core/models/photo/photo_model.dart';
 import 'package:photo_gallery/core/repositories/photo/photo_repository.dart';
 import 'package:photo_gallery/core/utils/cache/shared_preferences_helper.dart';
@@ -17,9 +16,10 @@ class PhotoListCubit extends Cubit<PhotoListState> {
 
   getAllPhotos(BuildContext context) async {
     final PhotoListState currentState = state;
-    final _networkConnection = NetworkConnection.getInstance();
+    final networkConnection = NetworkConnection.getInstance();
     try {
-      if (_networkConnection.hasConnection == true) {
+      bool hasConnection = await networkConnection.checkConnection();
+      if (hasConnection == true) {
         page = page + 1;
 
         //Unsplash image api give access 50 requiest in an hour. This is why here this condition is needed
@@ -36,8 +36,8 @@ class PhotoListCubit extends Cubit<PhotoListState> {
             if (cachedPageNumber < page) {
               SharedPreferencesHelper.setCachedPhotoPageNumber(page);
               SharedPreferencesHelper.setPhotoList(updatedPhotoList);
-              emit(currentState.copyWith(allPhotos: updatedPhotoList));
             }
+            emit(currentState.copyWith(allPhotos: updatedPhotoList));
           });
           return;
         }
