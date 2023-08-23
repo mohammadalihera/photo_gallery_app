@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shimmer/shimmer.dart';
+
 import 'package:photo_gallery/core/cubits/photo_list/photo_list_cubit.dart';
 import 'package:photo_gallery/core/utils/networking/network_connection.dart';
+import 'package:photo_gallery/ui/styling/image_path.dart';
 import 'package:photo_gallery/ui/widgets/loader_widget.dart';
-import 'package:shimmer/shimmer.dart';
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -52,97 +54,118 @@ class _GalleryPageState extends State<GalleryPage> {
     }
   }
 
+  _syncPhoto() async {
+    setState(() {
+      isLoading = true;
+    });
+    await context.read<PhotoListCubit>().getAllPhotos(context);
+    Future.delayed(const Duration(milliseconds: 1000));
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gallery')),
+      appBar: AppBar(
+        title: const Text('Gallery'),
+        actions: [
+          IconButton(
+            onPressed: () => _syncPhoto(),
+            icon: const Icon(Icons.sync),
+          )
+        ],
+      ),
       body: BlocBuilder<PhotoListCubit, PhotoListState>(
         builder: (context, state) {
-          print(state.allPhotos);
           return Stack(
             fit: StackFit.expand,
             children: [
               Column(
                 children: [
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        // childAspectRatio: 1.5,
-                        crossAxisSpacing: 2,
-                        mainAxisSpacing: 2,
-                      ),
-                      shrinkWrap: true,
-                      itemCount: state.allPhotos.length,
-                      controller: scrollController,
-                      itemBuilder: (BuildContext context, int index) {
-                        return SizedBox(
-                          height: 100,
-                          width: MediaQuery.of(context).size.width * 0.4,
-                          child: CachedNetworkImage(
-                            key: Key(state.allPhotos[index].urls!.regular!),
-                            cacheKey: state.allPhotos[index].urls!.regular!,
-                            imageUrl: state.allPhotos[index].urls!.regular!,
-                            imageBuilder: (context, imageProvider) {
-                              return Container(
-                                height: 100,
-                                width: MediaQuery.of(context).size.width * 0.4,
-                                decoration:
-                                    BoxDecoration(image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => downLoadPhoto(state.allPhotos[index].urls!.raw!),
-                                      // async {
-                                      //   setState(() {
-                                      //     downloading = true;
-                                      //   });
-                                      //   final tempDir = await getTemporaryDirectory();
-                                      //   final path = '${tempDir.path}/photo_gallery.jpg';
-                                      //   String url = state.allPhotos[index].urls!.raw!;
-                                      //   await Dio().download(url, path);
-                                      //   await GallerySaver.saveImage(path, albumName: 'PhotoGallery');
-                                      //   setState(() {
-                                      //     downloading = false;
-                                      //   });
-                                      //   ScaffoldMessenger.of(context)
-                                      //       .showSnackBar(const SnackBar(content: Text('Downloaded to Gallery')));
-                                      // },
-                                      child: Container(
-                                        constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
-                                        decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                          color: Colors.white.withOpacity(0.7),
+                  if (state.allPhotos.isNotEmpty)
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 2,
+                          mainAxisSpacing: 2,
+                        ),
+                        shrinkWrap: true,
+                        itemCount: state.allPhotos.length,
+                        controller: scrollController,
+                        itemBuilder: (BuildContext context, int index) {
+                          return SizedBox(
+                            height: 100,
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: CachedNetworkImage(
+                              key: Key(state.allPhotos[index].urls!.regular!),
+                              cacheKey: state.allPhotos[index].urls!.regular!,
+                              imageUrl: state.allPhotos[index].urls!.regular!,
+                              imageBuilder: (context, imageProvider) {
+                                return Container(
+                                  height: 100,
+                                  width: MediaQuery.of(context).size.width * 0.4,
+                                  decoration:
+                                      BoxDecoration(image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      InkWell(
+                                        onTap: () => downLoadPhoto(state.allPhotos[index].urls!.raw!),
+                                        child: Container(
+                                          constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
+                                          decoration: BoxDecoration(
+                                            borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                            color: Colors.white.withOpacity(0.7),
+                                          ),
+                                          child: const Center(child: Icon(Icons.download_rounded)),
                                         ),
-                                        child: const Center(child: Icon(Icons.download_rounded)),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            placeholder: (context, placeHolder) => Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: SizedBox(
+                                    ],
+                                  ),
+                                );
+                              },
+                              errorWidget: (context, url, error) => Container(
                                 height: 100,
                                 width: MediaQuery.of(context).size.width * 0.4,
+                                decoration: const BoxDecoration(
+                                    image: DecorationImage(
+                                  image: AssetImage(ImagePath.offline_image),
+                                  fit: BoxFit.cover,
+                                )),
                               ),
+                              placeholder: (context, placeHolder) => Shimmer.fromColors(
+                                baseColor: Colors.white24,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  color: Colors.black,
+                                  height: 100,
+                                  width: MediaQuery.of(context).size.width * 0.4,
+                                ),
+                              ),
+                              fit: BoxFit.fill,
                             ),
-                            fit: BoxFit.fill,
-                          ),
-                        );
-                        // Display photo from URL
-                      },
+                          );
+                          // Display photo from URL
+                        },
+                      ),
                     ),
-                  ),
-                  if (isLoading == true)
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    )
+                  if (isLoading == true && state.allPhotos.isNotEmpty) const Center(child: CircularProgressIndicator())
                 ],
               ),
+              if (state.allPhotos.isEmpty && isLoading == false)
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 100, width: 100, child: Image.asset(ImagePath.no_image)),
+                      const Text('No Image available')
+                    ],
+                  ),
+                ),
+              if (state.allPhotos.isEmpty && isLoading == true) LoadingWidget(loaderTitle: 'Loading Photo'),
               if (downloading) LoadingWidget(loaderTitle: 'Photo is Downloding')
             ],
           );
