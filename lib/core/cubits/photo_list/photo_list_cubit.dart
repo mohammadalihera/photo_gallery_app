@@ -23,7 +23,7 @@ class PhotoListCubit extends Cubit<PhotoListState> {
       if (hasConnection == true) {
         page = page + 1;
 
-        //Unsplash image api give access 50 requiest in an hour. This is why here this condition is needed
+        //Unsplash image api give access 50 request in an hour. This is why here this condition is needed
         if (page < 51) {
           final request = await photoRepository.loadPhotos(page);
           request.fold((exception) async {

@@ -11,8 +11,3 @@ class PhotoListState extends Equatable {
   @override
   List<Object> get props => [allPhotos];
 }
-
-class PhotoLoadingState extends PhotoListState {
-  @override
-  String toString() => 'PhotoLoadingState';
-}

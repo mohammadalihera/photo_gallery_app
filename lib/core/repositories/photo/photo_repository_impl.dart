@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-
 import 'package:photo_gallery/core/models/photo/photo_model.dart';
 import 'package:photo_gallery/core/utils/exception_handler/_index.dart';
 import 'package:photo_gallery/core/utils/networking/dio_client.dart';
@@ -12,11 +11,9 @@ import 'package:photo_gallery/core/utils/networking/endpoint.dart';
 class PhotoDao {
   final _dio = DioClient.instance.dio;
 
-  @override
   Future<Either<AppException, List<PhotoModel>>> loadPhotos(int page) async {
     try {
-      final response =
-          await _dio.get('${ApiEndPoint.photosUrl}/?page=${page}&client_id=${ApiEndPoint.photoAcessToken}');
+      final response = await _dio.get('${ApiEndPoint.photosUrl}/?page=$page&client_id=${ApiEndPoint.photoAccessToken}');
       List<PhotoModel> photos = [];
       if (response.statusCode == 200) {
         if (response.data is List) {
